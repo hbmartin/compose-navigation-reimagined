@@ -5,10 +5,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetDefaults
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -19,6 +24,7 @@ import dev.olshevski.navigation.reimagined.NavBackHandler
 import dev.olshevski.navigation.reimagined.material.BottomSheetNavHost
 import dev.olshevski.navigation.reimagined.material.BottomSheetNavHostScope
 import dev.olshevski.navigation.reimagined.material.BottomSheetValue
+import dev.olshevski.navigation.reimagined.moveToTop
 import dev.olshevski.navigation.reimagined.navigate
 import dev.olshevski.navigation.reimagined.pop
 import dev.olshevski.navigation.reimagined.popAll
@@ -45,7 +51,9 @@ fun BottomSheetNavHostScreen() = Box {
     ScreenLayout(
         title = stringResource(R.string.bottom_sheet_nav_host__demo_screen_title)
     ) {
-        ContentLayout {
+        ContentLayout(
+            modifier = Modifier.weight(1f)
+        ) {
             CenteredText(
                 text = "Use BottomSheetNavHost to open and switch between bottom sheets",
             )
@@ -56,6 +64,29 @@ fun BottomSheetNavHostScreen() = Box {
                 }
             ) {
                 Text(stringResource(R.string.bottom_sheet_nav_host__open_first_sheet_button))
+            }
+        }
+
+        BottomNavigation {
+            BottomSheetDestination.values().forEach { destination ->
+                val title = "dummy"
+                BottomNavigationItem(
+                    label = { Text(title) },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Home,
+                            contentDescription = title
+                        )
+                    },
+                    selected = false,
+                    onClick = {
+                        // keep only one instance of a destination in the backstack
+                        if (!navController.moveToTop { it == destination }) {
+                            // if there is no existing instance, add it
+                            navController.navigate(destination)
+                        }
+                    }
+                )
             }
         }
     }
